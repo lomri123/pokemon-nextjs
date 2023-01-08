@@ -2,6 +2,12 @@
   padding: 0 2rem;
 }
 
+.navbar {
+  height: '64px';
+  padding: '0 20px';
+  border-bottom: '2px solid #f1f2f3';
+}
+
 .main {
   min-height: 100vh;
   padding: 4rem 0;
@@ -83,6 +89,7 @@
   border-radius: 10px;
   transition: color 0.15s ease, border-color 0.15s ease;
   max-width: 300px;
+  text-align: center;
 }
 
 .card:hover,
