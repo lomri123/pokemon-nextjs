@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import styles from '../../styles/Home.module.css';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { GetStaticProps } from 'next';
 
 export interface Stat {
   name: string;
@@ -11,30 +11,45 @@ export interface Stat {
 }
 
 export interface Pokemon {
+  id: string;
   name: string;
   type: string[];
   stats: Stat[];
   image: string;
 }
 
-export default function PokemonDetails() {
-  const router = useRouter();
-  const { id } = router.query;
-  const [pokemon, setPokemon] = useState<Pokemon>({} as Pokemon);
-  useEffect(() => {
-    const fetchPokemon = async () => {
-      try {
-        const resp = await fetch(
-          `https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${id}.json`
-        );
-        const parsedResp = await resp.json();
-        setPokemon(parsedResp);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchPokemon();
-  }, [id]);
+type PageParams = {
+  id: string;
+};
+
+export async function getStaticPaths() {
+  const resp = await fetch(
+    'https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json'
+  );
+  const pokemon: Pokemon[] = await resp.json();
+
+  return {
+    paths: pokemon.map((pokemon) => ({
+      params: { id: pokemon.id.toString() },
+    })),
+    fallback: false,
+  };
+}
+
+export async function getStaticProps({ params }: { params: PageParams }) {
+  const resp = await fetch(
+    `https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${params.id}.json`
+  );
+
+  return {
+    props: {
+      pokemon: await resp.json(),
+    },
+    // revalidate: 30,
+  };
+}
+
+export default function PokemonDetails({ pokemon }: { pokemon: Pokemon }) {
   const { name, image, type, stats } = pokemon;
   return (
     <div>

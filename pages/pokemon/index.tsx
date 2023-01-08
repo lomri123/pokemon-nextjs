@@ -13,23 +13,19 @@ export interface PokemonItem {
 
 export type PokemonList = PokemonItem[];
 
-export default function Pokemon() {
-  const [pokemon, setPokemon] = useState<PokemonList>([]);
-  useEffect(() => {
-    const fetchPokemon = async () => {
-      try {
-        const resp = await fetch(
-          'https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json'
-        );
-        const parsedResp = await resp.json();
-        setPokemon(parsedResp);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchPokemon();
-  }, []);
+export async function getServerSideProps() {
+  const resp = await fetch(
+    'https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json'
+  );
 
+  return {
+    props: {
+      pokemon: await resp.json(),
+    },
+  };
+}
+
+export default function Pokemon({ pokemon = [] }: { pokemon: PokemonList }) {
   return (
     <Box>
       <Head>
